@@ -1,5 +1,4 @@
 const std = @import("std");
-const limit = 5;
 
 pub fn main() !void {
     var file = try std.fs.cwd().openFile("words.txt", .{});
@@ -10,6 +9,7 @@ pub fn main() !void {
     _ = args.skip();
 
     const end = args.nextPosix() orelse "";
+    const myabe_limit = std.fmt.parseInt(u64, args.nextPosix() orelse "10", 10) catch null;
 
     var buf_reader = std.io.bufferedReader(file.reader());
     var in_stream = buf_reader.reader();
@@ -17,8 +17,10 @@ pub fn main() !void {
     var buf: [1024]u8 = undefined;
 
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-        if (line.len > limit){
-            continue;
+        if (myabe_limit) |limit| {
+            if (line.len > limit) {
+                continue;
+            }
         }
         if (std.mem.endsWith(u8, line, end)) {
             try stdout.print("{s}\n", .{line});
